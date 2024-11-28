@@ -49,16 +49,18 @@ export async function POST(req) {
 
 export async function GET(req) {
   const url = new URL(req.url);
-  const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 
-  // Verify the webhook
+  // Parse query parameters sent by Facebook
   const mode = url.searchParams.get("hub.mode");
   const token = url.searchParams.get("hub.verify_token");
   const challenge = url.searchParams.get("hub.challenge");
 
+  const VERIFY_TOKEN = process.env.VERIFY_TOKEN; // Ensure this matches your configuration
+
+  // Verify the token and respond to Facebook's challenge
   if (mode === "subscribe" && token === VERIFY_TOKEN) {
     return new Response(challenge, { status: 200 });
+  } else {
+    return new Response("Forbidden", { status: 403 });
   }
-
-  return new Response("Forbidden", { status: 403 });
 }
